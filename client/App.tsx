@@ -15,6 +15,7 @@ export const specStatuses = new Set([
   "drafting",
   "obsolete",
   "pending approval",
+  "pending review",
   "rejected",
 ]);
 function App({ specs, teams }: { specs: Spec[]; teams: Team[] }) {
