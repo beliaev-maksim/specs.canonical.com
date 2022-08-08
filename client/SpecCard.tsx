@@ -17,7 +17,7 @@ const SpecCard = ({ spec }: { spec: Spec }) => {
               </ul>
             </small>
             <div
-              className={clsx("u-no-margin", {
+              className={clsx("spec-card__status u-no-margin", {
                 "p-status-label--positive":
                   spec.status === "Approved" ||
                   spec.status === "Completed" ||

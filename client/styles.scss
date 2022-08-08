@@ -21,7 +21,9 @@ main {
   display: flex;
   justify-content: space-between;
 }
-
+.spec-card__status {
+  height: fit-content;
+}
 .spec-card__metadata-list {
   align-self: center;
   flex-grow: 1;
