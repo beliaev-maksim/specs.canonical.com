@@ -35,14 +35,10 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
   return (
     <>
       <div
-        className={clsx("spec-aside-backdrop", { open: viewSpecsDetails })}
+        className="spec-aside-backdrop"
         onClick={() => setViewSpecsDetails(false)}
       />
-      <aside
-        className={clsx("spec-aside l-aside is-wide", {
-          open: viewSpecsDetails,
-        })}
-      >
+      <aside className="spec-aside l-aside is-wide">
         <div className="spec-container">
           {error ? (
             <ErrorComponent error={error} />
