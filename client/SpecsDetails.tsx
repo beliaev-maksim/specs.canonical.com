@@ -44,9 +44,11 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
         })}
       >
         <div className="spec-container">
-          {error && <ErrorComponent error={error} />}
-          {!error && loading && <Loader />}
-          {!error && !loading && (
+          {error ? (
+            <ErrorComponent error={error} />
+          ) : loading ? (
+            <Loader />
+          ) : (
             <>
               <section className="p-strip is-bordered is-shallow">
                 <small className="spec-card__metadata-list">
@@ -122,7 +124,6 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
                   </label>
                   <span>Get Notifications</span>
                 </p>
-                {/* </div> */}
               </section>
               <section className="spec-preview">
                 <div dangerouslySetInnerHTML={{ __html: obtainedData.html }} />
