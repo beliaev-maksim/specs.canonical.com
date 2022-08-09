@@ -14,4 +14,19 @@ export type Spec = {
   openComments: number;
 };
 
+export type Metadata = {
+  authors: Array<string>;
+  created: Date;
+  index: string;
+  status: string;
+  title: string;
+  type: string;
+};
+
+export type ObtainedData = {
+  html: string;
+  metadata: Metadata;
+  url: string;
+};
+
 export type Team = string;

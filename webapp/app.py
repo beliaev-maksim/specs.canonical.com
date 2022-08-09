@@ -1,10 +1,12 @@
 import os
 from datetime import datetime
 
-import flask
+from flask import render_template, jsonify, make_response, abort
+from flask_restful import Resource, Api
 from canonicalwebteam.flask_base.app import FlaskBase
-from webapp.authors import parse_authors, unify_authors
 
+from webapp.authors import parse_authors, unify_authors
+from webapp.spec import GoogleDrive, Spec
 from webapp.spreadsheet import get_sheet
 from webapp.sso import init_sso
 
@@ -16,7 +18,7 @@ SPECS_API = f"https://script.google.com/macros/s/{DEPLOYMENT_ID}/exec"
 
 SPREADSHEET_ID = "1jFj4z19cXZaPZcZk8nPTPmeO0zBbja5Bg23eXiZr9Pw"
 sheet = get_sheet()
-
+google_drive = GoogleDrive()
 
 app = FlaskBase(
     __name__,
@@ -26,6 +28,7 @@ app = FlaskBase(
 )
 
 init_sso(app)
+api = Api(app)
 
 
 def get_value_row(row, type):
@@ -103,13 +106,23 @@ def index():
     specs = unify_authors(specs)
     teams = sorted(teams)
 
-    return flask.render_template("index.html", specs=specs, teams=teams)
+    return render_template("index.html", specs=specs, teams=teams)
 
 
-@app.route("/spec/<spec_name>")
-def spec(spec_name):
-    for spec in _generate_specs():
-        if spec_name == spec["index"]:
-            return flask.redirect(spec["fileURL"])
-    else:
-        flask.abort(404)
+class GetDocument(Resource):
+    def get(self, document_id):
+        try:
+            spec = Spec(google_drive, document_id)
+        except Exception as e:
+            err = "Error fetching document, try again."
+            print(f"{err}\n {e}")
+            abort(500, description=err)
+        payload = {
+            "metadata": spec.metadata,
+            "url": spec.url,
+            "html": spec.html.encode("utf-8").decode(),
+        }
+        return make_response(jsonify(payload), 200)
+
+
+api.add_resource(GetDocument, "/spec/<string:document_id>")
