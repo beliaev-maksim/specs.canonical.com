@@ -20,7 +20,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sass": "1.42.1",
-    "vanilla-framework": "3.6.1"
+    "vanilla-framework": "3.6.1",
+    "focus-trap-react": "9.0.2"
   },
   "devDependencies": {
     "@types/qs": "^6.9.7",

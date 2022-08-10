@@ -72,6 +72,7 @@ const SpecCard = ({ spec }: { spec: Spec }) => {
             folderName: spec.folderName,
             lastEdited,
           }}
+          viewSpecsDetails={viewSpecsDetails}
           setViewSpecsDetails={setViewSpecsDetails}
         />
       )}
