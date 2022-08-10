@@ -23,10 +23,16 @@ export type Metadata = {
   type: string;
 };
 
-export type ObtainedData = {
+export type SpecDetails = {
   html: string;
   metadata: Metadata;
   url: string;
+};
+
+export type MoreSpecDetails = {
+  fileID: string;
+  folderName: string;
+  lastEdited: string;
 };
 
 export type Team = string;

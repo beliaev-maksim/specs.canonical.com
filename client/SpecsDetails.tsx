@@ -1,32 +1,52 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
-import { ObtainedData } from "./types";
-import Loader from "./Loader";
-import { ErrorComponent } from "./Error";
+import { SpecDetails, Metadata, MoreSpecDetails } from "./types";
+import { Spinner, Switch } from "@canonical/react-components";
+import ErrorComponent from "./Error";
 
 interface SpecDetailsProps {
-  obtainedData: ObtainedData;
-  loading: boolean;
-  viewSpecsDetails: boolean;
+  moreSpecDetails: MoreSpecDetails;
   setViewSpecsDetails: React.Dispatch<React.SetStateAction<boolean>>;
-  error: string;
-  folderName: string;
-  lastEdited: string;
 }
 
 const SpecsDetails: React.FC<SpecDetailsProps> = ({
-  loading,
-  obtainedData,
-  viewSpecsDetails,
+  moreSpecDetails,
   setViewSpecsDetails,
-  error,
-  folderName,
-  lastEdited,
 }) => {
+  const { fileID, folderName, lastEdited } = moreSpecDetails;
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [specDetails, setSpecDetails] = useState<SpecDetails>({
+    html: "",
+    metadata: {} as Metadata,
+    url: "",
+  });
+
   useEffect(() => {
+    // fetch document with respective ID
+    const fetchDocument = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${location.origin}/spec/${fileID}`);
+        const specDetails = await response.json();
+        if (response.ok) {
+          setSpecDetails(specDetails);
+        } else {
+          setError(specDetails.message);
+        }
+      } catch {
+        setError("Error. Something went wrong.");
+      }
+      setLoading(false);
+    };
+
+    fetchDocument();
+
+    // add class name to body when component mounts
     const body = document.getElementsByTagName("body")[0];
     body.classList.add("side-drawer-open");
 
+    // remove class name from body when component unmounts
     return () => {
       body.classList.remove("side-drawer-open");
     };
@@ -43,18 +63,20 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
           {error ? (
             <ErrorComponent error={error} />
           ) : loading ? (
-            <Loader />
+            <div className="spinner-container">
+              <Spinner text="Loading..." />
+            </div>
           ) : (
             <>
               <section className="p-strip is-bordered is-shallow">
                 <small className="spec-card__metadata-list">
                   <ul className="header p-inline-list--middot u-no-margin--bottom">
                     <li className="p-inline-list__item">
-                      {obtainedData.metadata.index}
+                      {specDetails.metadata.index}
                     </li>
                     <li className="p-inline-list__item">{folderName}</li>
                     <li className="p-inline-list__item metadata-type">
-                      {obtainedData.metadata.type}
+                      {specDetails.metadata.type}
                     </li>
                   </ul>
                 </small>
@@ -69,33 +91,33 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
               <section className="p-strip is-bordered is-shallow">
                 <p className="spec__title-container u-no-padding--top">
                   <h3 className="u-no-margin--bottom u-no-padding--top">
-                    {obtainedData.metadata.title}
+                    {specDetails.metadata.title}
                   </h3>
                   <div
                     className={clsx("spec__metadata u-no-margin", {
                       "p-status-label--positive":
-                        obtainedData.metadata.status === "approved" ||
-                        obtainedData.metadata.status === "completed" ||
-                        obtainedData.metadata.status === "active",
-                      "p-status-label--caution": obtainedData.metadata.status
+                        specDetails.metadata.status === "approved" ||
+                        specDetails.metadata.status === "completed" ||
+                        specDetails.metadata.status === "active",
+                      "p-status-label--caution": specDetails.metadata.status
                         ?.toLowerCase()
                         ?.startsWith("pending"),
                       "p-status-label":
-                        obtainedData.metadata.status === "drafting" ||
-                        obtainedData.metadata.status === "braindump",
+                        specDetails.metadata.status === "drafting" ||
+                        specDetails.metadata.status === "braindump",
                       "p-status-label--negative":
-                        obtainedData.metadata.status === "rejected" ||
-                        obtainedData.metadata.status === "obsolete" ||
-                        obtainedData.metadata.status === "unknown",
+                        specDetails.metadata.status === "rejected" ||
+                        specDetails.metadata.status === "obsolete" ||
+                        specDetails.metadata.status === "unknown",
                     })}
                   >
-                    {obtainedData.metadata.status}
+                    {specDetails.metadata.status}
                   </div>
                 </p>
                 <p className="u-no-padding--top">
                   Authors:{" "}
                   <em className="authors">
-                    {obtainedData.metadata.authors?.join(", ")}
+                    {specDetails.metadata.authors?.join(", ")}
                   </em>
                 </p>
                 <ul className="p-inline-list--middot u-no-padding--top">
@@ -105,7 +127,7 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
                   <li className="p-inline-list__item">
                     <em className="created">
                       Created:{" "}
-                      {new Date(obtainedData.metadata.created)?.toLocaleString(
+                      {new Date(specDetails.metadata.created)?.toLocaleString(
                         "en-GB",
                         { day: "numeric", month: "short", year: "numeric" }
                       )}
@@ -113,21 +135,17 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
                   </li>
                 </ul>
                 {/* The get notifications feature isn't functional yet */}
-                <p className="get-notifications u-no-padding--top">
-                  <label className="switch u-vertically-center">
-                    <input type="checkbox" />
-                    <span className="slider" />
-                  </label>
-                  <span>Get Notifications</span>
+                <p className="get-notifications u-no-margin u-no-padding--top">
+                  <Switch label="Get Notifications" />
                 </p>
               </section>
               <section className="spec-preview">
-                <div dangerouslySetInnerHTML={{ __html: obtainedData.html }} />
+                <div dangerouslySetInnerHTML={{ __html: specDetails.html }} />
               </section>
               <section className="l-status u-align--right">
                 <a
                   className="p-button--positive spec-link"
-                  href={obtainedData.url}
+                  href={specDetails.url}
                   role="button"
                   target="blank"
                 >

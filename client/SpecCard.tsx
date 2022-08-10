@@ -1,39 +1,14 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { Spec, ObtainedData, Metadata } from "./types";
+import { Spec } from "./types";
 import SpecsDetails from "./SpecsDetails";
 
 const SpecCard = ({ spec }: { spec: Spec }) => {
   const [viewSpecsDetails, setViewSpecsDetails] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
-  const [obtainedData, setObtainedData] = useState<ObtainedData>({
-    html: "",
-    metadata: {} as Metadata,
-    url: "",
-  });
   const lastEdited = `Last edit: ${spec.lastUpdated.toLocaleDateString(
     "en-GB",
     { day: "numeric", month: "short", year: "numeric" }
   )}`;
-
-  const openSpecsDetails = (id: string) => {
-    setViewSpecsDetails(true);
-    fetchDocument(id);
-  };
-
-  const fetchDocument = async (id: string) => {
-    setLoading(true);
-    const response = await fetch(`${location.origin}/spec/${id}`);
-    const obtainedData = await response.json();
-    if (response.ok) {
-      console.log(obtainedData);
-      setObtainedData(obtainedData);
-    } else {
-      setError(obtainedData.message);
-    }
-    setLoading(false);
-  };
 
   return (
     <>
@@ -71,7 +46,7 @@ const SpecCard = ({ spec }: { spec: Spec }) => {
               </div>
             </div>
             <h3 className="p-heading--4 u-no-margin--bottom">
-              <a onClick={() => openSpecsDetails(spec.fileID)}>{spec.title}</a>
+              <a onClick={() => setViewSpecsDetails(true)}>{spec.title}</a>
             </h3>
             <small>
               <em>{spec.authors.join(", ")}</em>
@@ -92,13 +67,12 @@ const SpecCard = ({ spec }: { spec: Spec }) => {
       </div>
       {viewSpecsDetails && (
         <SpecsDetails
-          loading={loading}
-          obtainedData={obtainedData}
-          viewSpecsDetails={viewSpecsDetails}
+          moreSpecDetails={{
+            fileID: spec.fileID,
+            folderName: spec.folderName,
+            lastEdited,
+          }}
           setViewSpecsDetails={setViewSpecsDetails}
-          error={error}
-          folderName={spec.folderName}
-          lastEdited={lastEdited}
         />
       )}
     </>

@@ -2,7 +2,7 @@ interface ErrorProps {
   error: string;
 }
 
-export const ErrorComponent: React.FC<ErrorProps> = ({ error }) => {
+const ErrorComponent: React.FC<ErrorProps> = ({ error }) => {
   return (
     <section className="p-strip u-align--center u-vertically-center error-screen">
       <div className="row">
@@ -24,3 +24,5 @@ export const ErrorComponent: React.FC<ErrorProps> = ({ error }) => {
     </section>
   );
 };
+
+export default ErrorComponent;
