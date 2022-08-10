@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import clsx from "clsx";
-import { SpecDetails, Metadata, MoreSpecDetails } from "./types";
 import { Spinner, Switch } from "@canonical/react-components";
+import { SpecDetails, Metadata, MoreSpecDetails } from "./types";
+import { focusHandler } from "./utils";
 import ErrorComponent from "./Error";
 
 interface SpecDetailsProps {
@@ -21,6 +22,7 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
     metadata: {} as Metadata,
     url: "",
   });
+  const specAsideRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // fetch document with respective ID
@@ -58,7 +60,11 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
         className="spec-aside-backdrop"
         onClick={() => setViewSpecsDetails(false)}
       />
-      <aside className="spec-aside l-aside is-wide">
+      <aside
+        className="spec-aside l-aside is-wide"
+        ref={specAsideRef}
+        onKeyDown={(e: React.KeyboardEvent) => focusHandler(e, specAsideRef)}
+      >
         <div className="spec-container">
           {error ? (
             <ErrorComponent error={error} />
