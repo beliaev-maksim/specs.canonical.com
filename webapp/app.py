@@ -1,8 +1,7 @@
 import os
 from datetime import datetime
 
-from flask import render_template, jsonify, make_response, abort
-from flask_restful import Resource, Api
+from flask import render_template, jsonify, abort
 from canonicalwebteam.flask_base.app import FlaskBase
 
 from webapp.authors import parse_authors, unify_authors
@@ -28,7 +27,6 @@ app = FlaskBase(
 )
 
 init_sso(app)
-api = Api(app)
 
 
 def get_value_row(row, type):
@@ -109,20 +107,17 @@ def index():
     return render_template("index.html", specs=specs, teams=teams)
 
 
-class GetDocument(Resource):
-    def get(self, document_id):
-        try:
-            spec = Spec(google_drive, document_id)
-        except Exception as e:
-            err = "Error fetching document, try again."
-            print(f"{err}\n {e}")
-            abort(500, description=err)
-        payload = {
-            "metadata": spec.metadata,
-            "url": spec.url,
-            "html": spec.html.encode("utf-8").decode(),
-        }
-        return make_response(jsonify(payload), 200)
-
-
-api.add_resource(GetDocument, "/spec/<string:document_id>")
+@app.route("/spec/<document_id>")
+def get_document(document_id):
+    try:
+        spec = Spec(google_drive, document_id)
+    except Exception as e:
+        err = "Error fetching document, try again."
+        print(f"{err}\n {e}")
+        abort(500, description=err)
+    payload = {
+        "metadata": spec.metadata,
+        "url": spec.url,
+        "html": spec.html.encode("utf-8").decode(),
+    }
+    return jsonify(payload)
