@@ -1,5 +1,4 @@
 $color-navigation-background: #772953;
-$toggled-switch: #06c;
 $spec-preview-backdrop: rgba(0, 0, 0, 0.25);
 $increase-font-size-on-larger-screens: false;
 
@@ -177,7 +176,6 @@ main {
   width: 100%;
   z-index: 11;
   background-color: $spec-preview-backdrop;
-  transform: translateX(0);
 }
 
 .spec__title-container {
