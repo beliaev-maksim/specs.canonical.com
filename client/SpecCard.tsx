@@ -12,7 +12,7 @@ const SpecCard = ({ spec }: { spec: Spec }) => {
 
   return (
     <>
-      <div className="l-fluid-breakout__item" data-js="grid-item">
+      <div className="l-fluid-breakout__item" data-js="grid-item" tabIndex={0}>
         <div
           className={`spec-card spec-card--${spec.status.toLowerCase()} p-card col-4 u-no-padding`}
         >
@@ -46,7 +46,9 @@ const SpecCard = ({ spec }: { spec: Spec }) => {
               </div>
             </div>
             <h3 className="p-heading--4 u-no-margin--bottom">
-              <a onClick={() => setViewSpecsDetails(true)}>{spec.title}</a>
+              <a role="button" onClick={() => setViewSpecsDetails(true)}>
+                {spec.title}
+              </a>
             </h3>
             <small>
               <em>{spec.authors.join(", ")}</em>

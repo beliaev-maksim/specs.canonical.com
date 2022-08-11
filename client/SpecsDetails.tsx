@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import clsx from "clsx";
-import { Spinner, Switch } from "@canonical/react-components";
+import { Spinner } from "@canonical/react-components";
 import { SpecDetails, Metadata, MoreSpecDetails } from "./types";
 import FocusTrap from "focus-trap-react";
 import ErrorComponent from "./Error";
@@ -47,22 +47,28 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
 
     // add class name to body when component mounts
     const body = document.getElementsByTagName("body")[0];
-    body.classList.add("side-drawer-open");
+    body.classList.add("spec-preview-open");
 
     // remove class name from body when component unmounts
     return () => {
-      body.classList.remove("side-drawer-open");
+      body.classList.remove("spec-preview-open");
     };
   }, []);
 
   return (
-    <>
+    <FocusTrap active={viewSpecsDetails}>
       <div
         className="spec-aside-backdrop"
         onClick={() => setViewSpecsDetails(false)}
-      />
-      <FocusTrap active={viewSpecsDetails}>
-        <aside className="spec-aside l-aside is-wide">
+      >
+        <aside
+          className="spec-aside l-aside is-wide"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="spec-preview"
+          aria-describedby="spec-preview"
+          onClick={(e: React.SyntheticEvent) => e.stopPropagation()}
+        >
           <div className="spec-container">
             {error ? (
               <ErrorComponent error={error} />
@@ -124,7 +130,7 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
                       {specDetails.metadata.authors?.join(", ")}
                     </em>
                   </p>
-                  <ul className="p-inline-list--middot u-no-padding--top">
+                  <ul className="p-inline-list--middot u-no-padding u-no-margin">
                     <li className="p-inline-list__item">
                       <em className="edited">{lastEdited}</em>
                     </li>
@@ -133,15 +139,15 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
                         Created:{" "}
                         {new Date(specDetails.metadata.created)?.toLocaleString(
                           "en-GB",
-                          { day: "numeric", month: "short", year: "numeric" }
+                          {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          }
                         )}
                       </em>
                     </li>
                   </ul>
-                  {/* The get notifications feature isn't functional yet */}
-                  <p className="get-notifications u-no-margin u-no-padding--top">
-                    <Switch label="Get Notifications" />
-                  </p>
                 </section>
                 <section className="spec-preview">
                   <div dangerouslySetInnerHTML={{ __html: specDetails.html }} />
@@ -150,7 +156,6 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
                   <a
                     className="p-button--positive spec-link"
                     href={specDetails.url}
-                    role="button"
                     target="blank"
                   >
                     Open in Google Docs
@@ -160,8 +165,8 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
             )}
           </div>
         </aside>
-      </FocusTrap>
-    </>
+      </div>
+    </FocusTrap>
   );
 };
 
