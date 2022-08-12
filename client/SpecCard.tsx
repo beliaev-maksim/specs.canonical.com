@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import { Spec } from "./types";
 import SpecsDetails from "./SpecsDetails";
@@ -10,9 +10,13 @@ const SpecCard = ({ spec }: { spec: Spec }) => {
     { day: "numeric", month: "short", year: "numeric" }
   )}`;
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key == "Enter") setViewSpecsDetails(true);
+  };
+
   return (
     <>
-      <div className="l-fluid-breakout__item" data-js="grid-item" tabIndex={0}>
+      <div className="l-fluid-breakout__item" data-js="grid-item">
         <div
           className={`spec-card spec-card--${spec.status.toLowerCase()} p-card col-4 u-no-padding`}
         >
@@ -46,7 +50,12 @@ const SpecCard = ({ spec }: { spec: Spec }) => {
               </div>
             </div>
             <h3 className="p-heading--4 u-no-margin--bottom">
-              <a role="button" onClick={() => setViewSpecsDetails(true)}>
+              <a
+                role="button"
+                onClick={() => setViewSpecsDetails(true)}
+                onKeyDown={handleKeyDown}
+                tabIndex={0}
+              >
                 {spec.title}
               </a>
             </h3>
