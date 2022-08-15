@@ -30,7 +30,9 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
     const fetchDocument = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${location.origin}/spec/${fileID}`);
+        const response = await fetch(
+          `${location.origin}/spec-details/${fileID}`
+        );
         const specDetails = await response.json();
         if (response.ok) {
           setSpecDetails(specDetails);

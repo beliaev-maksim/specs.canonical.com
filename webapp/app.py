@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from flask import render_template, jsonify, abort
+from flask import render_template, jsonify, abort, redirect
 from canonicalwebteam.flask_base.app import FlaskBase
 
 from webapp.authors import parse_authors, unify_authors
@@ -107,7 +107,16 @@ def index():
     return render_template("index.html", specs=specs, teams=teams)
 
 
-@app.route("/spec/<document_id>")
+@app.route("/spec/<spec_name>")
+def spec(spec_name):
+    for spec in _generate_specs():
+        if spec_name == spec["index"]:
+            return redirect(spec["fileURL"])
+    else:
+        abort(404)
+
+
+@app.route("/spec-details/<document_id>")
 def get_document(document_id):
     try:
         spec = Spec(google_drive, document_id)
