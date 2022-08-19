@@ -58,7 +58,10 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
   }, []);
 
   return (
-    <FocusTrap active={viewSpecsDetails}>
+    <FocusTrap
+      active={viewSpecsDetails}
+      focusTrapOptions={{ fallbackFocus: ".spec-aside-backdrop" }}
+    >
       <div
         className="spec-aside-backdrop"
         onClick={() => setViewSpecsDetails(false)}
@@ -101,7 +104,7 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
                   </button>
                 </section>
                 <section className="p-strip is-bordered is-shallow">
-                  <p className="spec__title-container u-no-padding--top">
+                  <span className="spec__title-container u-no-padding--top">
                     <h3 className="u-no-margin--bottom u-no-padding--top">
                       {specDetails.metadata.title}
                     </h3>
@@ -125,7 +128,7 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
                     >
                       {specDetails.metadata.status}
                     </div>
-                  </p>
+                  </span>
                   <p className="u-no-padding--top">
                     Authors:{" "}
                     <em className="authors">
