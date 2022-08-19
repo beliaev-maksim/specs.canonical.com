@@ -65,3 +65,6 @@ api.launchpad.net
 client.json
 token.json
 credentials.json
+
+# tests
+coverage/
