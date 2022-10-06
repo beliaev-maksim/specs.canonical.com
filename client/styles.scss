@@ -1,4 +1,5 @@
 $color-navigation-background: #772953;
+$spec-preview-backdrop: rgba(0, 0, 0, 0.25);
 $increase-font-size-on-larger-screens: false;
 
 @import "vanilla-framework";
@@ -21,9 +22,11 @@ main {
   display: flex;
   justify-content: space-between;
 }
+
 .spec-card__status {
   height: fit-content;
 }
+
 .spec-card__metadata-list {
   align-self: center;
   flex-grow: 1;
@@ -117,4 +120,100 @@ main {
 
 #no-results {
   grid-column: 1 / -1;
+}
+
+.spec-aside {
+  position: fixed;
+  background-color: #fff;
+  height: 100%;
+  width: 50% !important;
+  right: 0;
+  top: 0;
+  z-index: 12;
+  animation: sideDrawer 0.3s ease-in;
+
+  @keyframes sideDrawer {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  .spec-container {
+    padding: $spv--large $sph--large;
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: $colors--light-theme--background-default;
+
+    .spec-preview {
+      overflow: auto;
+      flex: 1;
+    }
+
+    .p-button--positive {
+      width: fit-content;
+      margin-left: auto;
+      margin-top: $spv--medium;
+    }
+
+    .metadata-type {
+      text-transform: capitalize;
+    }
+  }
+
+  @media screen and (max-width: $breakpoint-large - 1) {
+    width: 90% !important;
+  }
+}
+
+.spec-aside-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 11;
+  background-color: $spec-preview-backdrop;
+}
+
+.spec__title-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+
+  .spec__metadata {
+    text-transform: capitalize;
+  }
+}
+
+.spinner-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+body.spec-preview-open {
+  overflow-y: hidden;
+}
+
+.error-screen {
+  height: 100%;
+  width: 100%;
+}
+
+.get-notifications {
+  & .p-switch {
+    padding: 0;
+    margin: 0;
+  }
 }
