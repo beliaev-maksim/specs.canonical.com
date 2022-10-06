@@ -4,7 +4,7 @@ import tempfile
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 
-from settings import SERVICE_ACCOUNT_INFO
+from webapp.settings import SERVICE_ACCOUNT_INFO
 
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
