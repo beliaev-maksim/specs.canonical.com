@@ -15,7 +15,7 @@ export type Spec = {
 };
 
 export type Metadata = {
-  authors: Array<string>;
+  authors: [string];
   created: Date;
   index: string;
   status: string;
