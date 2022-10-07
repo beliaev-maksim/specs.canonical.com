@@ -1,17 +1,15 @@
 import io
-import os
 
 from apiclient.http import MediaIoBaseDownload
 from bs4 import BeautifulSoup
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-from webapp.spreadsheet import DiscoveryCache
 from dateutil.parser import parse
 
 from flask import abort
+
+from webapp.settings import SERVICE_ACCOUNT_INFO
 
 
 class GoogleDrive:
@@ -19,25 +17,12 @@ class GoogleDrive:
         scopes = [
             "https://www.googleapis.com/auth/drive.readonly",
         ]
-        creds = None
-        # The file token.json stores the user's access and refresh tokens, and is
-        # created automatically when the authorization flow completes for the first
-        # time.
-        if os.path.exists("token.json"):
-            creds = Credentials.from_authorized_user_file("token.json", scopes)
-        # If there are no (valid) credentials available, let the user log in.
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    "credentials.json", scopes
-                )
-                creds = flow.run_local_server(port=60889)
-            # Save the credentials for the next run
-            with open("token.json", "w") as token:
-                token.write(creds.to_json())
-        self.service = build("drive", "v2", credentials=creds, cache=DiscoveryCache())
+        credentials = service_account.Credentials.from_service_account_info(
+            SERVICE_ACCOUNT_INFO, scopes=scopes
+        )
+        self.service = build(
+            "drive", "v2", credentials=credentials, cache_discovery=False
+        )
 
     def doc_html(self, document_id):
         request = self.service.files().export_media(
@@ -50,7 +35,10 @@ class GoogleDrive:
             _, done = downloader.next_chunk()
         html = fh.getvalue().decode("utf-8")
         comments = (
-            self.service.comments().list(fileId=document_id).execute().get("items", [])
+            self.service.comments()
+            .list(fileId=document_id)
+            .execute()
+            .get("items", [])
         )
         return html, comments
 
@@ -125,5 +113,7 @@ class Spec:
                     else:
                         self.metadata["type"] = "unknown"
                 elif attr_name == "created":
-                    self.metadata["created"] = parse(attr_value_lower_case, fuzzy=True)
+                    self.metadata["created"] = parse(
+                        attr_value_lower_case, fuzzy=True
+                    )
         table.decompose()
