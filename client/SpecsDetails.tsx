@@ -161,7 +161,7 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
                   <a
                     className="p-button--positive spec-link"
                     href={specDetails.url}
-                    target="blank"
+                    target="_blank"
                   >
                     Open in Google Docs
                   </a>
