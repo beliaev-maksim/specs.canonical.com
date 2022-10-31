@@ -51,10 +51,16 @@ const SpecCard = ({ spec }: { spec: Spec }) => {
             </div>
             <h3 className="p-heading--4 u-no-margin--bottom">
               <a
-                role="button"
-                onClick={() => setViewSpecsDetails(true)}
+                href={spec.fileURL}
+                onClick={(e) => {
+                  if (e.metaKey || e.ctrlKey) {
+                    return;
+                  } else {
+                    e.preventDefault();
+                    setViewSpecsDetails(true);
+                  }
+                }}
                 onKeyDown={handleKeyDown}
-                tabIndex={0}
               >
                 {spec.title}
               </a>
