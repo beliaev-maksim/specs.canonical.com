@@ -111,7 +111,7 @@ def index():
 @app.route("/spec/<spec_name>")
 def spec(spec_name):
     for spec in _generate_specs():
-        if spec_name == spec["index"]:
+        if spec_name.upper() == spec["index"]:
             return redirect(spec["fileURL"])
     else:
         abort(404)
