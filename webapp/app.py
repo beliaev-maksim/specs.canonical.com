@@ -58,7 +58,7 @@ def is_spec(row):
 
 
 def _generate_specs():
-    RANGE = "A2:M1000"
+    RANGE = "A2:M"
     COLUMNS = [
         ("folderName", str),
         ("fileName", str),
