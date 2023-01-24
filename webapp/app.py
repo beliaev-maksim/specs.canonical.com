@@ -10,7 +10,7 @@ from webapp.sso import init_sso
 from webapp.update import update_sheet
 from webapp.google import Drive, Sheets
 from webapp.settings import TRACKER_SPREADSHEET_ID, SPECS_SHEET_TITLE
-
+from webapp.decorators import time_cache
 
 spreadsheet = Sheets(spreadsheet_id=TRACKER_SPREADSHEET_ID)
 drive = Drive()
@@ -51,6 +51,14 @@ def is_spec(row):
     return "userEnteredValue" in row[1]
 
 
+# Cache for 30 minutes
+@time_cache(60 * 30)
+def get_sheet_by_title(RANGE):
+    return spreadsheet.get_sheet_by_title(
+        title=SPECS_SHEET_TITLE, ranges=[f"{SPECS_SHEET_TITLE}!{RANGE}"]
+    )
+
+
 def _generate_specs():
     RANGE = "A2:M"
     COLUMNS = [
@@ -69,9 +77,7 @@ def _generate_specs():
         ("openComments", int),
     ]
 
-    sheet = spreadsheet.get_sheet_by_title(
-        title=SPECS_SHEET_TITLE, ranges=[f"{SPECS_SHEET_TITLE}!{RANGE}"]
-    )
+    sheet = get_sheet_by_title(RANGE)
 
     for row in sheet["data"][0]["rowData"]:
         if "values" in row and is_spec(row["values"]):
@@ -112,6 +118,8 @@ def spec(spec_name):
 
 
 @app.route("/spec-details/<document_id>")
+# Cache for 30 minutes
+@time_cache(60 * 30)
 def get_document(document_id):
     try:
         spec = Spec(drive, document_id)
