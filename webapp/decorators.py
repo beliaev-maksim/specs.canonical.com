@@ -2,7 +2,7 @@ import functools
 import time
 
 
-def time_cache(max_age, maxsize=None, typed=False):
+def time_cache(max_age, maxsize=128, typed=False):
     """Least-recently-used cache decorator with time-based cache invalidation.
     Args:
         max_age: Time to live for cached results (in seconds).
