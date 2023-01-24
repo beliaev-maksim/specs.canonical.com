@@ -1,8 +1,9 @@
-import os
 from datetime import datetime
 
 from flask import render_template, jsonify, abort, redirect
 from canonicalwebteam.flask_base.app import FlaskBase
+
+from cachetools import cached, TTLCache
 
 from webapp.authors import parse_authors, unify_authors
 from webapp.spec import Spec
@@ -11,6 +12,7 @@ from webapp.update import update_sheet
 from webapp.google import Drive, Sheets
 from webapp.settings import TRACKER_SPREADSHEET_ID, SPECS_SHEET_TITLE
 
+CACHE_TTL = 60 * 30
 
 spreadsheet = Sheets(spreadsheet_id=TRACKER_SPREADSHEET_ID)
 drive = Drive()
@@ -51,6 +53,14 @@ def is_spec(row):
     return "userEnteredValue" in row[1]
 
 
+# Cache for 30 minutes
+@cached(cache=TTLCache(maxsize=128, ttl=CACHE_TTL))
+def get_sheet_by_title(RANGE):
+    return spreadsheet.get_sheet_by_title(
+        title=SPECS_SHEET_TITLE, ranges=[f"{SPECS_SHEET_TITLE}!{RANGE}"]
+    )
+
+
 def _generate_specs():
     RANGE = "A2:M"
     COLUMNS = [
@@ -69,9 +79,7 @@ def _generate_specs():
         ("openComments", int),
     ]
 
-    sheet = spreadsheet.get_sheet_by_title(
-        title=SPECS_SHEET_TITLE, ranges=[f"{SPECS_SHEET_TITLE}!{RANGE}"]
-    )
+    sheet = get_sheet_by_title(RANGE)
 
     for row in sheet["data"][0]["rowData"]:
         if "values" in row and is_spec(row["values"]):
@@ -112,6 +120,8 @@ def spec(spec_name):
 
 
 @app.route("/spec-details/<document_id>")
+# Cache for 30 minutes
+@cached(cache=TTLCache(maxsize=128, ttl=CACHE_TTL))
 def get_document(document_id):
     try:
         spec = Spec(drive, document_id)
