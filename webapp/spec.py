@@ -65,7 +65,20 @@ class Spec:
                 continue
             attr_name, attr_value = cells
             attr_name = attr_name.text.lower().strip()
-            attr_value = attr_value.text.strip()
+
+            if attr_name == "authors":
+                # Select all span elements
+                authors_span_list = [
+                    value.select("span") for value in attr_value
+                ]
+                authors_list = []
+                for author in authors_span_list[0]:
+                    authors_list.append(author.text.strip())
+                # Remove empty items (i.e ",") from list
+                authors_list = [x for x in authors_list if x != ","]
+                attr_value = ",".join(authors_list)
+            else:
+                attr_value = attr_value.text.strip()
 
             if attr_name in self.metadata:
                 if attr_name in ["index", "title"]:
