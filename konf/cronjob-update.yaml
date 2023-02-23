@@ -1,5 +1,5 @@
 name: cronjob-update-spreadsheet
-schedule: "0 * * * *"
+schedule: "0 */3 * * *"
 image: prod-workplace-eng.docker-registry.canonical.com/cronjob-update-spreadsheet
 
 env:
