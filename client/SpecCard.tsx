@@ -32,18 +32,19 @@ const SpecCard = ({ spec }: { spec: Spec }) => {
               <div
                 className={clsx("spec-card__status u-no-margin", {
                   "p-status-label--positive":
-                    spec.status === "Approved" ||
-                    spec.status === "Completed" ||
-                    spec.status === "Active",
+                    spec.status.toLowerCase() === "approved" ||
+                    spec.status.toLowerCase() === "completed" ||
+                    spec.status.toLowerCase() === "active",
                   "p-status-label--caution": spec.status
                     .toLowerCase()
                     .startsWith("pending"),
                   "p-status-label":
-                    spec.status === "Drafting" || spec.status === "Braindump",
+                    spec.status.toLowerCase() === "drafting" ||
+                    spec.status.toLowerCase() === "braindump",
                   "p-status-label--negative":
-                    spec.status === "Rejected" ||
-                    spec.status === "Obsolete" ||
-                    spec.status === "Unknown",
+                    spec.status.toLowerCase() === "rejected" ||
+                    spec.status.toLowerCase() === "obsolete" ||
+                    spec.status.toLowerCase() === "unknown",
                 })}
               >
                 {spec.status}
