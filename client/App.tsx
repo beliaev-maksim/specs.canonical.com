@@ -22,7 +22,7 @@ function App({ specs, teams }: { specs: Spec[]; teams: Team[] }) {
   specs = specs.map((spec) => ({
     ...spec,
     title: spec.title || "Unknown title",
-    index: spec.index?.length === 5 ? spec.index : "Unknown",
+    index: spec.index?.length >= 5 ? spec.index : "Unknown",
     status: specStatuses.has(spec.status.toLowerCase())
       ? spec.status
       : "Unknown",

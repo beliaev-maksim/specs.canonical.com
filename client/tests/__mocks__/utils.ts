@@ -9,7 +9,7 @@ export const moreSpecTestDetails: MoreSpecDetails = {
 const testMetadata: Metadata = {
   authors: ["test_author"],
   created: new Date(),
-  index: "index",
+  index: "AB123",
   status: "active",
   title: "test_title",
   type: "Process",
