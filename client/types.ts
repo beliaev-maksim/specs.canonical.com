@@ -15,6 +15,7 @@ export type Spec = {
 };
 
 export type Metadata = {
+  statusMessage: string | undefined;
   authors: [string];
   created: Date;
   index: string;

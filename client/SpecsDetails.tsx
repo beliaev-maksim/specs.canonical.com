@@ -4,6 +4,8 @@ import { Spinner } from "@canonical/react-components";
 import { SpecDetails, Metadata, MoreSpecDetails } from "./types";
 import FocusTrap from "focus-trap-react";
 import ErrorComponent from "./Error";
+import { specStatuses } from "./App";
+import { capitalize } from "./utils";
 
 interface SpecDetailsProps {
   moreSpecDetails: MoreSpecDetails;
@@ -134,6 +136,7 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
                     >
                       {specDetails.metadata.status}
                     </div>
+                    {unknownStatusMessage(specDetails.metadata.statusMessage)}
                   </span>
                   <p className="u-no-padding--top">
                     Authors:{" "}
@@ -180,5 +183,24 @@ const SpecsDetails: React.FC<SpecDetailsProps> = ({
     </FocusTrap>
   );
 };
+
+function unknownStatusMessage(
+  statusMessage: string | undefined
+): JSX.Element | null {
+  if (!statusMessage) {
+    return null;
+  }
+  const statuses = [...specStatuses];
+  return (
+    <div className="u-text--muted" data-testid="unknown-status-message">
+      <i className="p-icon--warning" /> Your status is "{statusMessage}", it
+      should be one of{" "}
+      {statuses.map(
+        (status, index) =>
+          `${capitalize(status)}${index < statuses.length - 1 ? ", " : "."}`
+      )}
+    </div>
+  );
+}
 
 export default SpecsDetails;
