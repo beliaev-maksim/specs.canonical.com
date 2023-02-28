@@ -64,7 +64,6 @@ def update_sheet() -> None:
                 "webViewLink",
             ),
         )
-
         for file in files:
             comments = drive.get_comments(
                 file_id=file["id"], fields=("resolved",)

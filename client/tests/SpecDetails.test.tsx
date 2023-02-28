@@ -96,4 +96,37 @@ describe("renders spec details component", () => {
     const errorPrompt = screen.getByText("Error. Something went wrong.");
     expect(errorPrompt).toBeInTheDocument();
   });
+
+  it("does not displays a warning message when status is set", async () => {
+    await act(async () => {
+      render(SpecDetailsComp);
+    });
+
+    expect(screen.getByText("active")).toBeInTheDocument();
+    expect(() => screen.getByTestId("unknown-status-message")).toThrow(
+      "Unable to find an element"
+    );
+  });
+
+  it("displays a warning message for 'unknown' statuses", async () => {
+    await act(async () => {
+      console.log(testSpecDetails);
+      const specDetails = testSpecDetails;
+      specDetails.metadata.status = "unknown";
+      specDetails.metadata.statusMessage = "Incorrect";
+
+      render(
+        <SpecsDetails
+          moreSpecDetails={moreSpecTestDetails}
+          viewSpecsDetails={true}
+          setViewSpecsDetails={setViewSpecsDetails}
+        />
+      );
+    });
+
+    const status = screen.getByText("unknown");
+    expect(status).toBeInTheDocument();
+    const warning = screen.getByTestId("unknown-status-message");
+    expect(warning).toBeInTheDocument();
+  });
 });

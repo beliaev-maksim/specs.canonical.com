@@ -88,6 +88,7 @@ class Spec:
                         self.metadata["status"] = attr_value
                     else:
                         self.metadata["status"] = "unknown"
+                        self.metadata["statusMessage"] = attr_value
                 elif attr_name == "authors":
                     self.metadata["authors"] = [
                         author.strip() for author in attr_value.split(",")
