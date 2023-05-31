@@ -65,12 +65,12 @@ def update_sheet() -> None:
             ),
         )
         for file in files:
-            comments = drive.get_comments(
-                file_id=file["id"], fields=("resolved",)
-            )
-            open_comments = [c for c in comments if not c["resolved"]]
-
             try:
+                comments = drive.get_comments(
+                    file_id=file["id"], fields=("resolved",)
+                )
+                open_comments = [c for c in comments if not c["resolved"]]
+
                 parsed_doc = Spec(google_drive=drive, document_id=file["id"])
             except Exception as e:
                 print(f"Unable to parse document: {file['name']}", e)
