@@ -14,7 +14,6 @@ export const specStatuses = new Set([
   "completed",
   "drafting",
   "obsolete",
-  "pending approval",
   "pending review",
   "rejected",
 ]);

@@ -13,7 +13,6 @@ specs_status = (
     "completed",
     "drafting",
     "obsolete",
-    "pending approval",
     "pending review",
     "rejected",
 )
