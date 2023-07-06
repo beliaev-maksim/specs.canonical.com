@@ -1,11 +1,10 @@
 # [specs.canonical.com](https://specs.canonical.com/)
 
-A simple website to visualise Canonical specification documents stored in Google Drive. It allows filtering by different categories (status, team, etc.) as well as seeing a preview of the document. 
+A simple website to visualise Canonical specification documents stored in Google Drive. It allows filtering by different categories (status, team, etc.) as well as seeing a preview of the document.
 
 ## Bugs and issues
 
 If you have found a bug on the site or have an idea for a new feature, feel free to create a new issue, or suggest a fix by creating a pull request.
-
 
 ## Local development
 
@@ -20,6 +19,12 @@ PRIVATE_KEY_ID=...
 PRIVATE_KEY=...
 ```
 
+Generate the specs json file reading data from the spreadsheet:
+
+```
+dotrun build-specs
+```
+
 Run the project with:
 
 ```
@@ -27,4 +32,3 @@ dotrun
 ```
 
 Once the server has started, you can visit http://127.0.0.1:8104 in your browser.
-

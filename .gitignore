@@ -68,3 +68,6 @@ credentials.json
 
 # tests
 coverage/
+
+# specs file
+specs.json

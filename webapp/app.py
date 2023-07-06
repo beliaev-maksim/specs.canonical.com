@@ -1,4 +1,4 @@
-import copy 
+import copy
 import json
 import os
 
@@ -27,6 +27,7 @@ app = FlaskBase(
 init_sso(app)
 
 SPECS_FILE = "specs.json"
+all_specs = []
 if os.path.exists(SPECS_FILE):
     with open(SPECS_FILE) as f:
         all_specs = json.load(f)

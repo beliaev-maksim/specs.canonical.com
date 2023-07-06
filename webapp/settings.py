@@ -21,14 +21,9 @@ SERVICE_ACCOUNT_INFO = {
     ),
 }
 
-is_debug = os.getenv("FLASK_DEBUG")
-if is_debug:
-    # Test spreadsheet
-    TRACKER_SPREADSHEET_ID = "1LMS-ryXXfHCF2s2rJZT63n6SFyXqvYjdIq75OYvZLnw"
-else:
-    # Production spreadsheet
-    TRACKER_SPREADSHEET_ID = "1aKH6petyrzjzw0mgUNQscDhFSfVkbAIEjfH7YBS-bDA"
 
+# Spreadsheet that contains the spec metadatada
+TRACKER_SPREADSHEET_ID = "1aKH6petyrzjzw0mgUNQscDhFSfVkbAIEjfH7YBS-bDA"
 
 TEAMS_FOLDER_ID = "19jxxVn_3n6ZAmFl3DReEVgZjxZnlky4X"
 
