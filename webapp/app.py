@@ -1,6 +1,7 @@
 import copy
 import json
 import os
+import flask
 
 from flask import render_template, jsonify, abort, redirect
 from canonicalwebteam.flask_base.app import FlaskBase
@@ -73,6 +74,23 @@ def get_document(document_id):
         "html": spec.html.encode("utf-8").decode(),
     }
     return jsonify(payload)
+
+
+@app.route("/my-specs")
+def my_specs():
+    specs = []
+    teams = set()
+    user = flask.session["openid"]
+    for spec in copy.deepcopy(all_specs):
+        spec["authors"] = parse_authors(spec["authors"])
+        if user["fullname"] in spec["authors"]:
+            if spec["folderName"]:
+                teams.add(spec["folderName"])
+            specs.append(spec)
+    specs = unify_authors(specs)
+    teams = sorted(teams)
+
+    return render_template("index.html", specs=specs, teams=teams)
 
 
 @app.cli.command("update-spreadsheet")

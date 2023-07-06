@@ -49,6 +49,16 @@ function App({ specs, teams }: { specs: Spec[]; teams: Team[] }) {
           title: "Specifications",
           url: "#",
         }}
+        items={[
+          {
+            label: "All Docs",
+            url: "/",
+          },
+          {
+            label: "My Docs",
+            url: "/my-specs",
+          },
+        ]}
         itemsRight={[
           {
             url: "https://docs.google.com/document/d/1lStJjBGW7lyojgBhxGLUNnliUocYWjAZ1VEbbVduX54/edit#heading=h.31hys4te5m58",
