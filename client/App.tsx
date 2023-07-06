@@ -45,10 +45,9 @@ function App({ specs, teams }: { specs: Spec[]; teams: Team[] }) {
       </a>
       <Navigation
         logo={{
-          title: "Canonical specifications",
-          width: "133",
-          height: "19",
-          url: "/",
+          src: "https://assets.ubuntu.com/v1/82818827-CoF_white.svg",
+          title: "Specifications",
+          url: "#",
         }}
         itemsRight={[
           {
