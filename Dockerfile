@@ -44,7 +44,6 @@ COPY --from=frontend-build /srv/static static
 # Build specs json file 
 ARG PRIVATE_KEY
 ARG PRIVATE_KEY_ID
-RUN python3 -m webapp.build_specs
 
 # Set git commit ID
 ARG BUILD_ID
