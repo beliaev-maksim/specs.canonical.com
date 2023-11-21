@@ -18,6 +18,8 @@ specs_status = (
 )
 
 spec_types = (
+    "implementation",
+    "product requirement",
     "standard",
     "informational",
     "process",
