@@ -11,7 +11,7 @@ def get_value_row(row, type):
             if "formattedValue" in row:
                 return datetime.strptime(
                     row["formattedValue"], "%Y-%m-%dT%H:%M:%S.%fZ"
-                ).strftime("%d %b %Y")
+                ).strftime("%d %b %Y %H:%M")
         elif "userEnteredValue" in row:
             if "stringValue" in row["userEnteredValue"]:
                 return type(row["userEnteredValue"]["stringValue"])
@@ -19,6 +19,7 @@ def get_value_row(row, type):
                 return type(row["userEnteredValue"]["numberValue"])
 
     return ""
+
 
 def index_in_list(a_list, index):
     return index < len(a_list)
