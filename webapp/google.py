@@ -1,15 +1,14 @@
+import hashlib
 import io
 import os
-import hashlib
 import tempfile
+from typing import List
 
 from apiclient.http import MediaIoBaseDownload
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-
 from webapp.settings import SERVICE_ACCOUNT_INFO
-from typing import List
 
 
 class Drive:
@@ -120,7 +119,8 @@ class Sheets:
 
     def ensure_sheet_by_title(self, title, *args, **kwargs) -> dict:
         """
-        Returns an existing sheet matching the title if it can be found, else create it.
+        Returns an existing sheet matching the title if it can be found, else
+        create it.
         """
         try:
             return self.get_sheet_by_title(title, *args, **kwargs)

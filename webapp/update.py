@@ -1,15 +1,15 @@
-from typing import List, Dict
+from typing import Dict, List
 
 import tenacity
 
 from webapp.google import Drive, Sheets
-from webapp.spec import Spec
 from webapp.settings import (
-    TRACKER_SPREADSHEET_ID,
-    TEAMS_FOLDER_ID,
     SPECS_SHEET_TITLE,
+    TEAMS_FOLDER_ID,
     TMP_SHEET_TITLE,
+    TRACKER_SPREADSHEET_ID,
 )
+from webapp.spec import Spec
 
 try:
     from itertools import batched
@@ -117,7 +117,8 @@ def update_sheet() -> None:
     )
     folders = drive.get_files(query=query_subfolders, fields=("id", "name"))
 
-    # Insert rows in batches of 25, which is a magic number with no science behind it.
+    # Insert rows in batches of 25, which is a magic number with no science
+    # behind it.
     for rows in batched(_generate_spec_rows_for_folders(drive, folders), 25):
         _append_rows(rows=rows)
 

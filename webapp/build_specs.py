@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from webapp.google import Sheets
-from webapp.settings import TRACKER_SPREADSHEET_ID, SPECS_SHEET_TITLE
+from webapp.settings import SPECS_SHEET_TITLE, TRACKER_SPREADSHEET_ID
 
 
 def get_value_row(row, type):
@@ -30,6 +30,7 @@ def is_spec(row):
 
     return "userEnteredValue" in row[1]
 
+
 def generate_specs(sheet):
     COLUMNS = [
         ("folderName", str),
@@ -53,24 +54,25 @@ def generate_specs(sheet):
             for column_index in range(len(COLUMNS)):
                 (column, type) = COLUMNS[column_index]
                 spec[column] = get_value_row(
-                    row["values"][column_index]
-                    if index_in_list(row["values"], column_index)
-                    else None,
+                    (
+                        row["values"][column_index]
+                        if index_in_list(row["values"], column_index)
+                        else None
+                    ),
                     type,
                 )
             yield spec
 
 
 if __name__ == "__main__":
-    spreadsheet = Sheets(spreadsheet_id=TRACKER_SPREADSHEET_ID) 
-    
-    RANGE = "A2:M" 
+    spreadsheet = Sheets(spreadsheet_id=TRACKER_SPREADSHEET_ID)
+
+    RANGE = "A2:M"
     sheet = spreadsheet.get_sheet_by_title(
         title=SPECS_SHEET_TITLE, ranges=[f"{SPECS_SHEET_TITLE}!{RANGE}"]
     )
-    
+
     specs = list(generate_specs(sheet))
 
     with open("specs.json", "w") as f:
         json.dump(specs, f, indent=4)
-
