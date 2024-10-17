@@ -1,10 +1,8 @@
-from flask import abort
-from dateutil.parser import parse
 from bs4 import BeautifulSoup
-
+from dateutil.parser import parse
+from flask import abort
 
 from webapp.google import Drive
-
 
 specs_status = (
     "active",
@@ -50,7 +48,7 @@ class Spec:
         self.parse_metadata()
 
     def clean(self):
-        empty_tags_selector = lambda tag: (
+        empty_tags_selector = lambda tag: (  # noqa
             not tag.contents or len(tag.get_text(strip=True)) <= 0
         ) and tag.name not in ["br", "img", "hr"]
         for element in self.html.findAll(empty_tags_selector):
