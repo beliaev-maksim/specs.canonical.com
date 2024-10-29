@@ -48,8 +48,7 @@ class Drive:
         return html
 
     def get_files(self, query, fields=None):
-        fields = f"files({','.join(fields)})" if fields else None
-
+        fields = f"nextPageToken, files({','.join(fields)})" if fields else None
         page_token = None
         files = []
         while True:
@@ -59,6 +58,7 @@ class Drive:
                     supportsAllDrives=True,
                     includeItemsFromAllDrives=True,
                     fields=fields,
+                    pageToken=page_token,
                     q=query,
                 )
                 .execute()
