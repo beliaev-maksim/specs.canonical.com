@@ -41,6 +41,8 @@ def _generate_spec_rows_for_folders(drive: Drive, folders: List[Dict]):
                 "webViewLink",
             ),
         )
+        print(f"Found {len(files)} documents in {folder['name']}")
+
         for file_ in files:
             try:
                 comments = drive.get_comments(

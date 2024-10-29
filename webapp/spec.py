@@ -56,7 +56,8 @@ class Spec:
 
     def parse_metadata(self):
         table = self.html.select_one("table")
-
+        if not table:
+            raise ValueError("No metadata table found in document")
         for table_row in table.select("tr"):
             cells = table_row.select("td")
             # invalid format | name | value |, ignoring the row
