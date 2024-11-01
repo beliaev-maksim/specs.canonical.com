@@ -1,4 +1,5 @@
 from typing import Dict, List
+import datetime
 
 import tenacity
 
@@ -25,7 +26,20 @@ except ImportError:
             yield batch
 
 
-def _generate_spec_rows_for_folders(drive: Drive, folders: List[Dict]):
+def _generate_spec_rows_for_folders(
+    drive: Drive,
+    folders: List[Dict],
+    existing_specs: Dict[str, List],
+):
+    """
+    Generate rows for the spreadsheet with the metadata of the specs
+    found in the folders.
+
+    :param drive: Drive instance
+    :param folders: List of folders
+    :param existing_specs: Dict of existing specs in the sheet
+      key is file id, value is the row in the sheet
+    """
     for folder in folders:
         query_doc_files = (
             f"mimeType = 'application/vnd.google-apps.document' "
@@ -44,6 +58,29 @@ def _generate_spec_rows_for_folders(drive: Drive, folders: List[Dict]):
         print(f"Found {len(files)} documents in {folder['name']}")
 
         for file_ in files:
+            if file_["id"] in existing_specs:
+                file_modification_date = datetime.datetime.fromisoformat(
+                    file_["modifiedTime"][:-1]
+                )
+                row = existing_specs.get(file_["id"])
+                previous_modified_date = row["values"][10]["formattedValue"]
+                previous_modified_date = datetime.datetime.fromisoformat(
+                    previous_modified_date[:-1]
+                )
+                if previous_modified_date >= file_modification_date:
+                    # file has not been modified since last update
+                    # use the same row as before
+                    try:
+                        new_row = [
+                            value.get("formattedValue", "")
+                            for value in row["values"]
+                        ]
+                        yield new_row
+                    except KeyError as e:
+                        print(
+                            "something went wrong with file ", file_["name"], e
+                        )
+
             try:
                 comments = drive.get_comments(
                     file_id=file_["id"], fields=("resolved",)
@@ -119,9 +156,24 @@ def update_sheet() -> None:
     )
     folders = drive.get_files(query=query_subfolders, fields=("id", "name"))
 
+    existing_specs = {}
+
+    spec_rows = specs_sheet.get("data", [{}])[0].get("rowData", [])
+
+    # create a dict with the existing specs in the sheet, ignore the header
+    for row in spec_rows[1:]:
+        try:
+            file_id = row["values"][2]["formattedValue"]
+            existing_specs[file_id] = row
+        except (KeyError, IndexError) as e:
+            print("Error parsing row", e)
+
     # Insert rows in batches of 25, which is a magic number with no science
     # behind it.
-    for rows in batched(_generate_spec_rows_for_folders(drive, folders), 25):
+    for rows in batched(
+        _generate_spec_rows_for_folders(drive, folders, existing_specs),
+        25,
+    ):
         _append_rows(rows=rows)
 
     # Rename temporary file as the main one once it contains all the specs
