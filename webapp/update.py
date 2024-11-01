@@ -92,11 +92,15 @@ def _generate_spec_rows_for_folders(
                 continue
 
             try:
-                comments = drive.get_comments(file_id=file_["id"], fields=("resolved",))
+                comments = drive.get_comments(
+                    file_id=file_["id"], fields=("resolved",)
+                )
                 open_comments = [c for c in comments if not c["resolved"]]
                 parsed_doc = Spec(google_drive=drive, document_id=file_["id"])
             except Exception as e:
-                logger.error("Unable to parse document: %s", file_["name"], exc_info=e)
+                logger.error(
+                    "Unable to parse document: %s", file_["name"], exc_info=e
+                )
                 continue
 
             row = [
@@ -172,7 +176,8 @@ def update_sheet() -> None:
     existing_specs = {spec["fileID"]: spec for spec in save_specs_locally()}
 
     logger.info(
-        "Found %s existing specs in the current sheet", len(existing_specs.values())
+        "Found %s existing specs in the current sheet",
+        len(existing_specs.values()),
     )
     # Insert rows in batches of 25, which is a magic number with no science
     # behind it.

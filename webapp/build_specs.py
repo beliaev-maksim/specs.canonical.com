@@ -4,7 +4,11 @@ from datetime import datetime
 from typing import Dict, List
 
 from webapp.google import Sheets
-from webapp.settings import SPECS_FILE, SPECS_SHEET_TITLE, TRACKER_SPREADSHEET_ID
+from webapp.settings import (
+    SPECS_FILE,
+    SPECS_SHEET_TITLE,
+    TRACKER_SPREADSHEET_ID,
+)
 
 logger = logging.getLogger(__name__)
 

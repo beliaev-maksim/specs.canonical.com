@@ -33,7 +33,6 @@ init_sso(app)
 # Cache for 30 minutes
 @cached(cache=TTLCache(maxsize=128, ttl=CACHE_TTL))
 def all_specs():
-
     # load the specs from the sheet and save them locally
     return save_specs_locally()
 

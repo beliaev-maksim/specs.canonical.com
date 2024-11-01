@@ -74,7 +74,9 @@ class Spec:
 
             if attr_name == "authors":
                 # Select all span elements
-                authors_span_list = [value.select("span") for value in attr_value]
+                authors_span_list = [
+                    value.select("span") for value in attr_value
+                ]
                 authors_list = []
                 for author in authors_span_list[0]:
                     authors_list.append(author.text.strip())
@@ -84,29 +86,31 @@ class Spec:
             else:
                 attr_value = attr_value.text.strip()
 
-            if attr_name in self.metadata:
-                if attr_name in ["index", "title"]:
-                    self.metadata[attr_name] = attr_value
-                elif attr_name == "status":
-                    if attr_value.lower() in specs_status:
-                        self.metadata["status"] = attr_value
-                    else:
-                        self.metadata["status"] = "unknown"
-                        self.metadata["statusMessage"] = attr_value
-                elif attr_name == "authors":
-                    self.metadata["authors"] = [
-                        author.strip() for author in attr_value.split(",")
-                    ]
-                elif attr_name == "type":
-                    if attr_value.lower() in spec_types:
-                        self.metadata["type"] = attr_value
-                    else:
-                        self.metadata["type"] = "unknown"
-                elif attr_name == "created":
-                    try:
-                        self.metadata["created"] = parse(attr_value, fuzzy=True)
-                    except Exception as e:
-                        logger.error(exc_info=e)
-                        self.metadata["created"] = "unknown"
+            if attr_name not in self.metadata:
+                continue
+
+            if attr_name in ["index", "title"]:
+                self.metadata[attr_name] = attr_value
+            elif attr_name == "status":
+                if attr_value.lower() in specs_status:
+                    self.metadata["status"] = attr_value
+                else:
+                    self.metadata["status"] = "unknown"
+                    self.metadata["statusMessage"] = attr_value
+            elif attr_name == "authors":
+                self.metadata["authors"] = [
+                    author.strip() for author in attr_value.split(",")
+                ]
+            elif attr_name == "type":
+                if attr_value.lower() in spec_types:
+                    self.metadata["type"] = attr_value
+                else:
+                    self.metadata["type"] = "unknown"
+            elif attr_name == "created":
+                try:
+                    self.metadata["created"] = parse(attr_value, fuzzy=True)
+                except Exception as e:
+                    logger.error(exc_info=e)
+                    self.metadata["created"] = "unknown"
 
         table.decompose()
