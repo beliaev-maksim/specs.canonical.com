@@ -1,8 +1,12 @@
+import logging
+
 from bs4 import BeautifulSoup
 from dateutil.parser import parse
 from flask import abort
 
 from webapp.google import Drive
+
+logger = logging.getLogger(__name__)
 
 specs_status = (
     "active",
@@ -41,16 +45,18 @@ class Spec:
             raw_html = google_drive.doc_html(document_id)
         except Exception as e:
             err = "Error. Document doesn't exist."
-            print(f"{err}\n {e}")
+            logger.error(err, exc_info=e)
             abort(404, description=err)
         self.html = BeautifulSoup(raw_html, features="lxml")
         self.clean()
         self.parse_metadata()
 
     def clean(self):
-        empty_tags_selector = lambda tag: (  # noqa
-            not tag.contents or len(tag.get_text(strip=True)) <= 0
-        ) and tag.name not in ["br", "img", "hr"]
+        def empty_tags_selector(tag):
+            return (  # noqa
+                not tag.contents or len(tag.get_text(strip=True)) <= 0
+            ) and tag.name not in ["br", "img", "hr"]
+
         for element in self.html.findAll(empty_tags_selector):
             element.decompose()
 
@@ -68,9 +74,7 @@ class Spec:
 
             if attr_name == "authors":
                 # Select all span elements
-                authors_span_list = [
-                    value.select("span") for value in attr_value
-                ]
+                authors_span_list = [value.select("span") for value in attr_value]
                 authors_list = []
                 for author in authors_span_list[0]:
                     authors_list.append(author.text.strip())
@@ -100,11 +104,9 @@ class Spec:
                         self.metadata["type"] = "unknown"
                 elif attr_name == "created":
                     try:
-                        self.metadata["created"] = parse(
-                            attr_value, fuzzy=True
-                        )
+                        self.metadata["created"] = parse(attr_value, fuzzy=True)
                     except Exception as e:
-                        print(e)
+                        logger.error(exc_info=e)
                         self.metadata["created"] = "unknown"
 
         table.decompose()
