@@ -1,8 +1,10 @@
-from typing import Dict, List
 import datetime
+import logging
+from typing import Dict, List
 
 import tenacity
 
+from webapp.build_specs import save_specs_locally
 from webapp.google import Drive, Sheets
 from webapp.settings import (
     SPECS_SHEET_TITLE,
@@ -26,10 +28,13 @@ except ImportError:
             yield batch
 
 
+logger = logging.getLogger(__name__)
+
+
 def _generate_spec_rows_for_folders(
     drive: Drive,
     folders: List[Dict],
-    existing_specs: Dict[str, List],
+    existing_specs_id_index: Dict[str, List],
 ):
     """
     Generate rows for the spreadsheet with the metadata of the specs
@@ -55,31 +60,36 @@ def _generate_spec_rows_for_folders(
                 "webViewLink",
             ),
         )
-        print(f"Found {len(files)} documents in {folder['name']}")
+        logger.info("Found %s documents in %s", len(files), folder["name"])
 
         for file_ in files:
-            if file_["id"] in existing_specs:
-                file_modification_date = datetime.datetime.fromisoformat(
-                    file_["modifiedTime"][:-1]
-                )
-                row = existing_specs.get(file_["id"])
-                previous_modified_date = row["values"][10]["formattedValue"]
-                previous_modified_date = datetime.datetime.fromisoformat(
-                    previous_modified_date[:-1]
-                )
-                if previous_modified_date >= file_modification_date:
-                    # file has not been modified since last update
-                    # use the same row as before
-                    try:
-                        new_row = [
-                            value.get("formattedValue", "")
-                            for value in row["values"]
-                        ]
-                        yield new_row
-                    except KeyError as e:
-                        print(
-                            "something went wrong with file ", file_["name"], e
-                        )
+            existing_spec = existing_specs_id_index.get(file_["id"])
+            file_changed_since_last_sync = (
+                existing_spec is None
+                or existing_spec["lastUpdated"] != file_["modifiedTime"]
+            )
+
+            # file has not been modified since last update
+            # use the same row as before
+            if existing_spec and not file_changed_since_last_sync:
+                row = [
+                    folder["name"],
+                    file_["name"],
+                    file_["id"],
+                    file_["webViewLink"],
+                    existing_spec["index"],
+                    existing_spec["title"],
+                    existing_spec["status"],
+                    existing_spec["authors"],
+                    existing_spec["type"],
+                    file_["createdTime"],
+                    file_["modifiedTime"],
+                    existing_spec["numberOfComments"],
+                    existing_spec["openComments"],
+                ]
+                logger.info("Using existing row for %s", file_["name"])
+                yield row
+                continue
 
             try:
                 comments = drive.get_comments(
@@ -88,7 +98,9 @@ def _generate_spec_rows_for_folders(
                 open_comments = [c for c in comments if not c["resolved"]]
                 parsed_doc = Spec(google_drive=drive, document_id=file_["id"])
             except Exception as e:
-                print(f"Unable to parse document: {file_['name']}", e)
+                logger.error(
+                    "Unable to parse document: %s", file_["name"], exc_info=e
+                )
                 continue
 
             row = [
@@ -114,6 +126,8 @@ def update_sheet() -> None:
     Get specs from Google Drive, parse the metadata on top of the document
     and write into a spreadsheet
     """
+    start_time = datetime.datetime.now()
+    logger.info("Update sheet started...")
     drive = Drive()
     sheets = Sheets(spreadsheet_id=TRACKER_SPREADSHEET_ID)
 
@@ -154,27 +168,30 @@ def update_sheet() -> None:
         f"mimeType = 'application/vnd.google-apps.folder' "
         f"and '{TEAMS_FOLDER_ID}' in parents"
     )
+    logger.info("Finding subfolders of %s", TEAMS_FOLDER_ID)
     folders = drive.get_files(query=query_subfolders, fields=("id", "name"))
-
-    existing_specs = {}
-
-    spec_rows = specs_sheet.get("data", [{}])[0].get("rowData", [])
+    logger.info("Found %s subfolders", len(folders))
 
     # create a dict with the existing specs in the sheet, ignore the header
-    for row in spec_rows[1:]:
-        try:
-            file_id = row["values"][2]["formattedValue"]
-            existing_specs[file_id] = row
-        except (KeyError, IndexError) as e:
-            print("Error parsing row", e)
+    existing_specs = {spec["fileID"]: spec for spec in save_specs_locally()}
 
+    logger.info(
+        "Found %s existing specs in the current sheet",
+        len(existing_specs.values()),
+    )
     # Insert rows in batches of 25, which is a magic number with no science
     # behind it.
+    total_specs = 0
     for rows in batched(
         _generate_spec_rows_for_folders(drive, folders, existing_specs),
         25,
     ):
+        total_specs += len(rows)
         _append_rows(rows=rows)
+
+    logger.info("Inserted %s specs in the sheet", total_specs)
+    elapsed_time_seconds = (datetime.datetime.now() - start_time).seconds
+    logger.info("Updated the sheet in %s seconds", elapsed_time_seconds)
 
     # Rename temporary file as the main one once it contains all the specs
     sheets.update_sheet_name(

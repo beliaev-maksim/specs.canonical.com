@@ -4,6 +4,45 @@ $increase-font-size-on-larger-screens: false;
 @import "vanilla-framework";
 @include vanilla;
 
+// create font name aliases for the Spec preview from Google docs
+$ubuntu-font-url: "https://assets.ubuntu.com/v1/f1ea362b-Ubuntu%5Bwdth,wght%5D-latin-v0.896a.woff2";
+$ubuntu-mono-font-url: "https://assets.ubuntu.com/v1/d5fc1819-UbuntuMono%5Bwght%5D-latin-v0.869.woff2";
+@font-face {
+  font-family: "Ubuntu";
+  font-stretch: 100%;
+  font-style: normal;
+  font-weight: 100 800;
+  src: url($ubuntu-font-url) format("woff2-variations");
+}
+@font-face {
+  font-family: "Roboto";
+  font-stretch: 100%;
+  font-style: normal;
+  font-weight: 100 800;
+  src: url($ubuntu-font-url) format("woff2-variations");
+}
+@font-face {
+  font-family: "Ubuntu Mono";
+  font-stretch: 100%;
+  font-style: normal;
+  font-weight: 100 800;
+  src: url($ubuntu-mono-font-url) format("woff2-variations");
+}
+@font-face {
+  font-family: "Roboto Mono";
+  font-stretch: 100%;
+  font-style: normal;
+  font-weight: 100 800;
+  src: url($ubuntu-mono-font-url) format("woff2-variations");
+}
+@font-face {
+  font-family: "Consolas";
+  font-stretch: 100%;
+  font-style: normal;
+  font-weight: 100 800;
+  src: url($ubuntu-mono-font-url) format("woff2-variations");
+}
+
 main {
   padding-bottom: $spv--strip-regular;
 }
@@ -145,6 +184,9 @@ main {
     .spec-preview {
       overflow: auto;
       flex: 1;
+      span {
+        line-height: 150%;
+      }
     }
 
     .p-button--positive {

@@ -1,8 +1,16 @@
 import json
+import logging
 from datetime import datetime
+from typing import Dict, List
 
 from webapp.google import Sheets
-from webapp.settings import SPECS_SHEET_TITLE, TRACKER_SPREADSHEET_ID
+from webapp.settings import (
+    SPECS_FILE,
+    SPECS_SHEET_TITLE,
+    TRACKER_SPREADSHEET_ID,
+)
+
+logger = logging.getLogger(__name__)
 
 
 def get_value_row(row, type):
@@ -64,7 +72,13 @@ def generate_specs(sheet):
             yield spec
 
 
-if __name__ == "__main__":
+def save_specs(specs):
+    with open(SPECS_FILE, "w") as f:
+        logger.info("Saved %s specs to specs.json", len(specs))
+        json.dump(specs, f, indent=4)
+
+
+def load_sheet():
     spreadsheet = Sheets(spreadsheet_id=TRACKER_SPREADSHEET_ID)
 
     RANGE = "A2:M"
@@ -72,7 +86,22 @@ if __name__ == "__main__":
         title=SPECS_SHEET_TITLE, ranges=[f"{SPECS_SHEET_TITLE}!{RANGE}"]
     )
 
-    specs = list(generate_specs(sheet))
+    return sheet
 
-    with open("specs.json", "w") as f:
-        json.dump(specs, f, indent=4)
+
+def save_specs_locally() -> List[Dict]:
+    """
+    Fetch already parsed specs from Google Sheets and save them locally.
+
+    :return: List of specs objects
+    """
+    logger.info("Fetching specs from Google Sheets")
+    sheet = load_sheet()
+    specs = list(generate_specs(sheet))
+    save_specs(specs)
+    print(specs[0])
+    return specs
+
+
+if __name__ == "__main__":
+    save_specs_locally()

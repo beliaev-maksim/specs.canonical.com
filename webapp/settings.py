@@ -31,3 +31,5 @@ TEAMS_FOLDER_ID = "19jxxVn_3n6ZAmFl3DReEVgZjxZnlky4X"
 SPECS_SHEET_TITLE = "Specs"
 # Temporary sheet while the update is running
 TMP_SHEET_TITLE = "Specs_tmp"
+
+SPECS_FILE = "specs.json"

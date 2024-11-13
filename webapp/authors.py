@@ -1,18 +1,24 @@
 import re
 
 
-def parse_authors(authors):
+def parse_authors(authors: str):
     """
     Get rid of email and other additional information
     in the authors name field.
     """
-    authors = authors.split(",")
+    authors = re.split(",|;", authors)
     parsed_authors = []
     for author in authors:
         # name <email>
         # name (canonical)
         author = re.sub("(\\(.*\\)|<.*>)", "", author).strip()
         parsed_authors.append(author)
+    # filter out names with special characters: e.g. "(Author of", ")", ";"
+    parsed_authors = [
+        author
+        for author in parsed_authors
+        if re.match("^[a-zA-Z ]+$", normalize_name(author))
+    ]
     return parsed_authors
 
 
