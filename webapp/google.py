@@ -149,27 +149,16 @@ class Sheets:
         )
 
     def delete_sheets(self, sheet_ids_to_delete: list):
-
         sheets = []
         for sheet_id in sheet_ids_to_delete:
             sheets.append({"deleteSheet": {"sheetId": sheet_id}})
 
         delete_sheet_requests = {"requests": sheets}
-        self._batch_update(
-            body=delete_sheet_requests
-        )
+        self._batch_update(body=delete_sheet_requests)
 
     def create_sheet(self, sheet_title: str) -> str:
         add_sheet_request = {
-            "requests": [
-                {
-                    "addSheet": {
-                        "properties": {
-                            "title": sheet_title
-                        }
-                    }
-                }
-            ]
+            "requests": [{"addSheet": {"properties": {"title": sheet_title}}}]
         }
 
         response = self._batch_update(add_sheet_request)
