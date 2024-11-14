@@ -205,7 +205,8 @@ def update_sheet() -> None:
 def create_tmp_sheet(sheets) -> str:
     """Function to create a temporary sheet.
 
-    Validate if the `TMP_SHEET_TITLE` exists, if yes, delete and create a new one.
+    Validate if the `TMP_SHEET_TITLE` exists, if yes, delete.
+    Create a new sheet with name `TMP_SHEET_TITLE`.
 
     Returns:
         ID of the `TMP_SHEET_TITLE` sheet
