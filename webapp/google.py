@@ -114,9 +114,10 @@ class Sheets:
         self.spreadsheets = service.spreadsheets()
 
     def _batch_update(self, body):
-        self.spreadsheets.batchUpdate(
+        response = self.spreadsheets.batchUpdate(
             spreadsheetId=self.spreadsheet_id, body=body
         ).execute()
+        return response
 
     def get_sheet_by_title(self, title, ranges=None) -> dict:
         """
@@ -133,6 +134,34 @@ class Sheets:
             for s in spreadsheet["sheets"]
             if s["properties"]["title"] == title
         )
+
+    def delete_sheets(self, sheet_ids_to_delete: list):
+        delete_sheet_requests = {
+            "requests": [
+                {"deleteSheet": {"sheetId": sheet_id}} for sheet_id in sheet_ids_to_delete
+            ]
+        }
+        self._batch_update(
+            body=delete_sheet_requests
+        )
+
+    def create_sheet(self, sheet_title: str) -> str:
+        add_sheet_request = {
+            "requests": [
+                {
+                    "addSheet": {
+                        "properties": {
+                            "title": sheet_title
+                        }
+                    }
+                }
+            ]
+        }
+
+        response = self._batch_update(add_sheet_request)
+
+        new_sheet_id = response["replies"][0]["addSheet"]["properties"]["sheetId"]
+        return new_sheet_id
 
     def clear(self, sheet_id: str) -> None:
         """

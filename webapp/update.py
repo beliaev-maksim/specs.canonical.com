@@ -17,9 +17,7 @@ def update_sheet() -> None:
     sheets = Sheets(spreadsheet_id=TRACKER_SPREADSHEET_ID)
 
     specs_sheet = sheets.get_sheet_by_title(SPECS_SHEET_TITLE)
-    tmp_sheet = sheets.get_sheet_by_title(TMP_SHEET_TITLE)
-
-    sheets.clear(sheet_id=tmp_sheet["properties"]["sheetId"])
+    tmp_sheet_id = create_tmp_sheet(sheets)
 
     # Add headers
     sheets.insert_rows(
@@ -96,15 +94,26 @@ def update_sheet() -> None:
                 range=TMP_SHEET_TITLE,
             )
 
-    # Rename temporary file as the main one once it contains all the specs
+    # delete the current main source sheet
+    sheets.delete_sheets([specs_sheet["properties"]["sheetId"]])
+
+    # rename the temporary sheet to the main source sheet
     sheets.update_sheet_name(
-        sheet_id=specs_sheet["properties"]["sheetId"], new_name="tmp"
-    )
-    sheets.update_sheet_name(
-        sheet_id=tmp_sheet["properties"]["sheetId"],
+        sheet_id=tmp_sheet_id,
         new_name=SPECS_SHEET_TITLE,
     )
-    sheets.update_sheet_name(
-        sheet_id=specs_sheet["properties"]["sheetId"],
-        new_name=TMP_SHEET_TITLE,
-    )
+
+
+def create_tmp_sheet(sheets) -> str:
+    """Function to create a temporary sheet.
+
+    Validate if the `TMP_SHEET_TITLE` exists, if yes, delete and create a new one.
+
+    Returns:
+        ID of the `TMP_SHEET_TITLE` sheet
+    """
+    tmp_sheet = sheets.get_sheet_by_title(TMP_SHEET_TITLE)
+    if tmp_sheet:
+        sheets.delete_sheets([tmp_sheet["properties"]["sheetId"]])
+    tmp_sheet_id = sheets.create_sheet(TMP_SHEET_TITLE)
+    return tmp_sheet_id
