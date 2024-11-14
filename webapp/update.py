@@ -131,8 +131,8 @@ def update_sheet() -> None:
     drive = Drive()
     sheets = Sheets(spreadsheet_id=TRACKER_SPREADSHEET_ID)
 
-    specs_sheet = sheets.get_sheet_by_title(SPECS_SHEET_TITLE)
-    tmp_sheet = sheets.ensure_sheet_by_title(TMP_SHEET_TITLE)
+    specs_sheet = sheets.ensure_sheet_by_title(SPECS_SHEET_TITLE)
+    tmp_sheet_id = create_tmp_sheet(sheets)
 
     @tenacity.retry(
         stop=tenacity.stop_after_attempt(3),
@@ -141,9 +141,6 @@ def update_sheet() -> None:
     def _append_rows(rows):
         """Helper to retry extending the TMP_SHEET."""
         return sheets.insert_rows(rows, range=TMP_SHEET_TITLE)
-
-    sheets.clear(sheet_id=tmp_sheet["properties"]["sheetId"])
-    tmp_sheet_id = create_tmp_sheet(sheets)
 
     # Add headers
     _append_rows(

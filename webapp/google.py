@@ -129,10 +129,7 @@ class Sheets:
             return self.get_sheet_by_title(title, *args, **kwargs)
         except StopIteration:
             # no sheet found with that name
-            body = {
-                "requests": [{"addSheet": {"properties": {"title": title}}}]
-            }
-            self._batch_update(body)
+            self.create_sheet(title)
             return self.get_sheet_by_title(title, *args, **kwargs)
 
     def get_sheet_by_title(self, title, ranges=None) -> dict:
