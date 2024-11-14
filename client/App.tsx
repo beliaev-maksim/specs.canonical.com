@@ -6,7 +6,7 @@ import { Spec, Team } from "./types";
 import { useFilteredAndSortedSpecs } from "./UserFilterOptions";
 import { sortSet } from "./utils";
 
-export const specTypes = new Set(["Standard", "Informational", "Process"]);
+export const specTypes = new Set(["Implementation", "Product Requirement", "Standard", "Informational", "Process"]);
 export const specStatuses = new Set([
   "active",
   "approved",

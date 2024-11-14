@@ -1,15 +1,14 @@
+import hashlib
 import io
 import os
-import hashlib
 import tempfile
+from typing import List
 
 from apiclient.http import MediaIoBaseDownload
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-
 from webapp.settings import SERVICE_ACCOUNT_INFO
-from typing import List
 
 
 class Drive:
@@ -50,6 +49,7 @@ class Drive:
 
     def get_files(self, query, fields=None):
         fields = f"files({','.join(fields)})" if fields else None
+        fields = f"nextPageToken, {fields}" if fields else "nextPageToken"
 
         page_token = None
         files = []
@@ -60,6 +60,7 @@ class Drive:
                     supportsAllDrives=True,
                     includeItemsFromAllDrives=True,
                     fields=fields,
+                    pageToken=page_token,
                     q=query,
                 )
                 .execute()
@@ -118,6 +119,21 @@ class Sheets:
             spreadsheetId=self.spreadsheet_id, body=body
         ).execute()
         return response
+
+    def ensure_sheet_by_title(self, title, *args, **kwargs) -> dict:
+        """
+        Returns an existing sheet matching the title if it can be found, else
+        create it.
+        """
+        try:
+            return self.get_sheet_by_title(title, *args, **kwargs)
+        except StopIteration:
+            # no sheet found with that name
+            body = {
+                "requests": [{"addSheet": {"properties": {"title": title}}}]
+            }
+            self._batch_update(body)
+            return self.get_sheet_by_title(title, *args, **kwargs)
 
     def get_sheet_by_title(self, title, ranges=None) -> dict:
         """

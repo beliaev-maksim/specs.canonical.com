@@ -1,4 +1,8 @@
 static
+
+# python dependencies
+.venv
+
 # [generated] Bracketed sections updated by Yeoman generator
 # generator-canonical-webteam@3.4.1
 

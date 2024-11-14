@@ -1,5 +1,7 @@
 name: cronjob-update-spreadsheet
-schedule: "0 */3 * * *"
+# The script takes around 3 hours to run, this is a safe distance between two runs
+# taking into account potential Google API latency.
+schedule: "0 */6 * * *"
 image: prod-workplace-eng.docker-registry.canonical.com/cronjob-update-spreadsheet
 
 env:

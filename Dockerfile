@@ -2,7 +2,7 @@
 
 # Build stage: Install python dependencies
 # ===
-FROM ubuntu:focal AS python-dependencies
+FROM ubuntu:jammy AS python-dependencies
 RUN apt-get update && apt-get install --no-install-recommends --yes python3 python3-setuptools python3-pip
 ADD requirements.txt /tmp/requirements.txt
 RUN pip3 config set global.disable-pip-version-check true
@@ -29,11 +29,11 @@ RUN yarn run build
 
 # Build the production image
 # ===
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 # Install python and import python dependencies
 RUN apt-get update && apt-get install --no-install-recommends --yes python3 python3-setuptools ca-certificates libsodium-dev python3-lib2to3
-COPY --from=python-dependencies /root/.local/lib/python3.8/site-packages /root/.local/lib/python3.8/site-packages
+COPY --from=python-dependencies /root/.local/lib/python3.10/site-packages /root/.local/lib/python3.10/site-packages
 COPY --from=python-dependencies /root/.local/bin /root/.local/bin
 WORKDIR /srv
 COPY . .

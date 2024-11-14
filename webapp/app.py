@@ -1,20 +1,22 @@
-import copy
-import json
-import os
+import logging
+
 import flask
-
-from flask import render_template, jsonify, abort, redirect
+from cachetools import TTLCache, cached
 from canonicalwebteam.flask_base.app import FlaskBase
-
-from cachetools import cached, TTLCache
+from flask import abort, jsonify, redirect, render_template
 
 from webapp.authors import parse_authors, unify_authors
+from webapp.build_specs import save_specs_locally
+from webapp.google import Drive
 from webapp.spec import Spec
 from webapp.sso import init_sso
 from webapp.update import update_sheet
-from webapp.google import Drive
 
 CACHE_TTL = 60 * 30
+
+log_format = "%(asctime)s [%(levelname)s] (%(name)s:%(module)s) %(message)s"
+logging.basicConfig(level=logging.INFO, format=log_format)
+logger = logging.getLogger(__name__)
 
 drive = Drive()
 
@@ -27,18 +29,19 @@ app = FlaskBase(
 
 init_sso(app)
 
-SPECS_FILE = "specs.json"
-all_specs = []
-if os.path.exists(SPECS_FILE):
-    with open(SPECS_FILE) as f:
-        all_specs = json.load(f)
+
+# Cache for 30 minutes
+@cached(cache=TTLCache(maxsize=128, ttl=CACHE_TTL))
+def all_specs():
+    # load the specs from the sheet and save them locally
+    return save_specs_locally()
 
 
 @app.route("/")
 def index():
     specs = []
     teams = set()
-    for spec in copy.deepcopy(all_specs):
+    for spec in all_specs():
         spec["authors"] = parse_authors(spec["authors"])
         if spec["folderName"]:
             teams.add(spec["folderName"])
@@ -51,7 +54,7 @@ def index():
 
 @app.route("/spec/<spec_name>")
 def spec(spec_name):
-    for spec in all_specs:
+    for spec in all_specs():
         if spec_name.upper() == spec["index"]:
             return redirect(spec["fileURL"])
     else:
@@ -66,7 +69,7 @@ def get_document(document_id):
         spec = Spec(drive, document_id)
     except Exception as e:
         err = "Error fetching document, try again."
-        print(f"{err}\n {e}")
+        logger.error(err, exc_info=e)
         abort(500, description=err)
     payload = {
         "metadata": spec.metadata,
@@ -81,7 +84,7 @@ def my_specs():
     specs = []
     teams = set()
     user = flask.session["openid"]
-    for spec in copy.deepcopy(all_specs):
+    for spec in all_specs():
         spec["authors"] = parse_authors(spec["authors"])
         if user["fullname"] in spec["authors"]:
             if spec["folderName"]:

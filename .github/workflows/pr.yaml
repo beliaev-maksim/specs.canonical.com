@@ -1,0 +1,99 @@
+name: PR checks
+on: pull_request
+env:
+  SECRET_KEY: insecure_test_key
+
+jobs:
+  run-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build image
+        run: DOCKER_BUILDKIT=1 docker build --tag specs.canonical.com .
+
+      - name: Run image
+        run: |
+          docker run --detach --env SECRET_KEY=insecure_secret_key --env PRIVATE_KEY="${{ secrets.PRIVATE_KEY }}" --env PRIVATE_KEY_ID="${{ secrets.PRIVATE_KEY_ID }}" --network host specs.canonical.com
+          sleep 1
+          curl --head --fail --retry-delay 1 --retry 30 --retry-connrefused http://localhost
+
+  run-dotrun:
+    runs-on: ubuntu-latest
+  
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dotrun
+        run: sudo pip3 install dotrun
+
+      - name: Install dependencies
+        run: |
+          sudo chmod -R 777 .
+          dotrun install
+
+      - name: Build assets
+        run: dotrun build
+
+      - name: Run dotrun
+        run: |
+          echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> .env
+          echo "PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }}" >> .env
+          dotrun  & curl --head --fail --retry-delay 1 --retry 30 --retry-connrefused http://localhost:8104
+
+  lint-python:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install python dependencies
+        run: | 
+          python3 -m pip install --upgrade pip
+          sudo pip3 install flake8 black
+
+      - name: Lint python
+        run: yarn lint-python
+
+  test-python:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dotrun
+        run: sudo pip3 install dotrun
+
+      - name: Install dependencies
+        run: |
+          sudo chmod -R 777 .
+          dotrun install
+
+      - name: Build assets
+        run: dotrun build
+
+      - name: Install dependencies
+        run: |
+          echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> .env
+          echo "PRIVATE_KEY_ID=${{ secrets.PRIVATE_KEY_ID }}" >> .env
+          dotrun exec pip3 install coverage
+
+      - name: Run tests with coverage
+        run: |
+          dotrun exec coverage run --source=. --module unittest discover tests
+          bash <(curl -s https://codecov.io/bash) -cF python
+          
+  check-inclusive-naming:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Check inclusive naming
+        uses: canonical-web-and-design/inclusive-naming@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          fail-on-error: true
