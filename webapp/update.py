@@ -213,5 +213,6 @@ def create_tmp_sheet(sheets) -> str:
     tmp_sheet = sheets.get_sheet_by_title(TMP_SHEET_TITLE)
     if tmp_sheet:
         sheets.delete_sheets([tmp_sheet["properties"]["sheetId"]])
-    tmp_sheet_id = sheets.create_sheet(TMP_SHEET_TITLE)
+    tmp_sheet = sheets.create_sheet(TMP_SHEET_TITLE)
+    tmp_sheet_id = tmp_sheet["properties"]["sheetId"]
     return tmp_sheet_id

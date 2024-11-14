@@ -149,11 +149,12 @@ class Sheets:
         )
 
     def delete_sheets(self, sheet_ids_to_delete: list):
-        delete_sheet_requests = {
-            "requests": [
-                {"deleteSheet": {"sheetId": sheet_id}} for sheet_id in sheet_ids_to_delete
-            ]
-        }
+
+        sheets = []
+        for sheet_id in sheet_ids_to_delete:
+            sheets.append({"deleteSheet": {"sheetId": sheet_id}})
+
+        delete_sheet_requests = {"requests": sheets}
         self._batch_update(
             body=delete_sheet_requests
         )
@@ -173,8 +174,8 @@ class Sheets:
 
         response = self._batch_update(add_sheet_request)
 
-        new_sheet_id = response["replies"][0]["addSheet"]["properties"]["sheetId"]
-        return new_sheet_id
+        new_sheet = response["replies"][0]["addSheet"]
+        return new_sheet
 
     def clear(self, sheet_id: str) -> None:
         """
